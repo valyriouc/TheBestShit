@@ -1,0 +1,154 @@
+# Build outputs
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Bb]uild/
+[Bb]uild[Ll]og.*
+
+# VS & tooling
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+.history/
+
+# ASP.NET Core local settings
+appsettings.*.local.json
+appsettings.Development.json
+secrets.json
+**/secrets/*.json
+*.db-shm
+*.db-wal
+
+# User secrets (outside project usually, but ignore if present)
+**/UserSecrets/
+
+# Logs
+logs/
+*.log
+log-*.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache / temp
+*~
+*.tmp
+*.temp
+*.cache
+*.gz
+*.zip
+*.tar
+*.tgz
+
+# Publish / deploy
+publish/
+dist/
+out/
+artifacts/
+
+# Generated files
+Generated/
+wwwroot/lib/
+wwwroot/dist/
+wwwroot/build/
+
+# Node (if using frontend in same repo)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Coverage
+coverage/
+coverage-*/
+*.lcov
+
+# Testing
+TestResults/
+.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+# (uncomment next line to ignore packages folder if using legacy packages.config)
+# packages/
+
+# Azure
+.publishsettings
+**/ServiceDependencies/**/*.json
+**/ServiceDependencies/**/*.xml
+**/Properties/ServiceDependencies/*.json
+
+# Docker
+docker-compose.override.yml
+**/obj/Docker/**/*.*
+**/Dockerfile.develop*
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# StyleCop
+StyleCopReport.xml
+
+# Entity Framework Core
+Migrations/**/Snapshot.cs
+
+# SQLite / Local DB
+*.db
+*.sqlite
+*.sqlite3
+App_Data/
+
+# Certificates
+*.pfx
+*.p12
+*.cer
+*.key
+
+# Images (generated)
+*.png~
+*.jpg~
+
+# JetBrains Rider caches
+.idea/
+*.sln.iml
+
+# Temporary lock files
+project.lock.json
+global.json
+
+# OS specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Optional: ignore whole appsettings except base
+# (Uncomment if you only want appsettings.json tracked)
+# appsettings.*.json
+# !appsettings.json
+
+# Prevent accidental secrets
+.env
+.env.*
+*.secret
+*.pem

@@ -1,0 +1,110 @@
+using System.Text.Json.Serialization;
+using iteration1.Models;
+using iteration1.Response;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace iteration1.Controllers;
+
+public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseController(dbContext)
+{
+    [HttpGet]
+    public async Task<IActionResult> GetVoteAsync([FromQuery] uint resourceId)
+    {
+        TopFiveUser user = await GetCurrentUserAsync();  
+
+        Vote? vote = await _dbContext.Votes.FirstOrDefaultAsync(
+            x => x.Resource.Id == resourceId && x.Owner.Id == user.Id);
+
+        if (vote is null)
+        {
+            return NotFound("Vote not found for this user and resource.");
+        }
+
+        return Ok(vote);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> CreateVoteAsync([FromBody] VoteRequest request)
+    {
+        TopFiveUser user = await GetCurrentUserAsync();
+        Resource? resource = await _dbContext.Resources.FindAsync(request.ResourceId);
+
+        if (resource is null)
+        {
+            return NotFound($"The resource with id {request.ResourceId} was not found.");
+        }
+        
+        Vote? existingVote = await _dbContext.Votes
+            .FirstOrDefaultAsync(v =>
+                v.Resource.Id == request.ResourceId && 
+                v.Owner.Id == user.Id);
+
+        if (existingVote is not null)
+        {
+            return Conflict("User has already voted on this resource.");
+        }
+        
+        var vote = new Vote
+        {
+            Resource = resource,
+            Owner = user,
+            Direction = request.Direction
+        };
+        
+        _dbContext.Votes.Add(vote);
+        await _dbContext.SaveChangesAsync();
+        
+        return Ok(new AppResponseInfo<VoteRequest>("Vote recorded successfully.", request));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateVoteAsync([FromBody] VoteRequest request)
+    {
+        TopFiveUser user = await GetCurrentUserAsync();
+        
+        Vote? existingVote = await _dbContext.Votes
+            .FirstOrDefaultAsync(v =>
+                v.Resource.Id == request.ResourceId && 
+                v.Owner.Id == user.Id);
+
+        if (existingVote is null)
+        {
+            return NotFound($"The resource with id {request.ResourceId} was not found.");
+        }
+
+        existingVote.Direction = request.Direction;
+        await _dbContext.SaveChangesAsync();
+        return Ok(new AppResponseInfo<VoteRequest>("Vote updated successfully.", request));
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteVoteAsync([FromQuery] uint resourceId)
+    {
+        TopFiveUser user = await GetCurrentUserAsync();
+        Vote? existingVote = await _dbContext.Votes
+            .FirstOrDefaultAsync(v =>
+                v.Resource.Id == resourceId && 
+                v.Owner.Id == user.Id);
+
+        if (existingVote is null)
+        {
+            return NotFound("Vote not found for this resource.");
+        }
+        
+        _dbContext.Votes.Remove(existingVote);
+        await _dbContext.SaveChangesAsync();
+        
+        return Ok(new AppResponseInfo<string>("Vote deleted successfully.", $"Vote for resource id {resourceId} deleted."));
+    }
+}
+
+[method: JsonConstructor]
+public readonly struct VoteRequest(
+    uint resourceId,
+    bool direction)
+{
+    public uint ResourceId { get; } = resourceId;
+
+    public bool Direction { get; } = direction;
+}
