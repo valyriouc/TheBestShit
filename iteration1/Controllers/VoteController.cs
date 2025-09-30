@@ -51,6 +51,15 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
             Owner = user,
             Direction = request.Direction
         };
+
+        if (vote.Direction == true)
+        {
+            resource.UpVotes += 1;
+        }
+        else
+        {
+            resource.DownVotes += 1;
+        }
         
         _dbContext.Votes.Add(vote);
         await _dbContext.SaveChangesAsync();
@@ -67,13 +76,25 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
             .FirstOrDefaultAsync(v =>
                 v.Resource.Id == request.ResourceId && 
                 v.Owner.Id == user.Id);
-
+        
         if (existingVote is null)
         {
             return NotFound($"The resource with id {request.ResourceId} was not found.");
         }
+        
+        if (existingVote.Direction == true && request.Direction == false)
+        {
+            existingVote.Resource.UpVotes -= 1;
+            existingVote.Resource.DownVotes += 1;
+        }
+        else if (existingVote.Direction == false && request.Direction == true)
+        {
+            existingVote.Resource.DownVotes += 1;
+            existingVote.Resource.UpVotes -= 1;
+        }
 
         existingVote.Direction = request.Direction;
+        
         await _dbContext.SaveChangesAsync();
         return Ok(new AppResponseInfo<VoteRequest>("Vote updated successfully.", request));
     }
@@ -90,6 +111,15 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
         if (existingVote is null)
         {
             return NotFound("Vote not found for this resource.");
+        }
+
+        if (existingVote.Direction == true)
+        {
+            existingVote.Resource.UpVotes -= 1;
+        }
+        else
+        {
+            existingVote.Resource.DownVotes -= 1;
         }
         
         _dbContext.Votes.Remove(existingVote);
