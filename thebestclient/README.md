@@ -1,4 +1,4 @@
-# thebest
+# thebestclient
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -14,10 +14,6 @@ This template should help get you started developing with Vue 3 in Vite.
 - Firefox:
   - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
   - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
 ## Customize configuration
 
@@ -35,7 +31,7 @@ npm install
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Compile and Minify for Production
 
 ```sh
 npm run build
@@ -58,7 +54,7 @@ npm run test:e2e
 # Runs the tests only on Chrome
 npm run test:e2e -- --env chrome
 # Runs the tests of a specific file
-npm run test:e2e -- tests/e2e/example.ts
+npm run test:e2e -- tests/e2e/example.js
 # Runs the tests in debug mode
 npm run test:e2e -- --debug
 ```

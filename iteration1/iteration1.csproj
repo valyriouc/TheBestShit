@@ -17,4 +17,33 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\.editorconfig" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\.gitattributes" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\.gitignore" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\.prettierrc.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\env.d.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\eslint.config.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\index.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\nightwatch.conf.cjs" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\nightwatch\nightwatch.d.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\nightwatch\tsconfig.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\package-lock.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\package.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\public\favicon.ico" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\README.md" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\src\App.vue" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\src\main.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\src\router\index.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\src\stores\counter.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\src\__tests__\App.spec.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\tests\e2e\example.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\tsconfig.app.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\tsconfig.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\tsconfig.node.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\tsconfig.vitest.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\vite.config.ts" />
+    <_ContentIncludedByDefault Remove="wwwroot\thebest\vitest.config.ts" />
+  </ItemGroup>
+
 </Project>

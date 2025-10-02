@@ -14,23 +14,6 @@ public class Program
         builder.Services.AddIdentityApiEndpoints<TopFiveUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         
-        // builder.Services.AddIdentity<TopFiveUser, IdentityRole>(options =>
-        //     {
-        //         options.Password.RequireDigit = true;
-        //         options.Password.RequireLowercase = true;
-        //         options.Password.RequireNonAlphanumeric = true;
-        //         options.Password.RequireUppercase = true;
-        //         options.Password.RequiredLength = 6;
-        //         options.Password.RequiredUniqueChars = 6;
-        //
-        //         options.User.AllowedUserNameCharacters =
-        //             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        //         options.User.RequireUniqueEmail = true;
-        //
-        //     })
-        //     .AddEntityFrameworkStores<ApplicationDbContext>()
-        //     .AddDefaultTokenProviders();
-        
         builder.Services.AddDbContext<ApplicationDbContext>();
         builder.Services.AddSingleton<IEmailSender<TopFiveUser>, NoOpEmailSender>();
         
