@@ -7,28 +7,45 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-
-        builder.Services.AddRazorPages();
-;        builder.Services.AddControllers();
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        
+        builder.Services.AddControllers();
 
         builder.Services.AddIdentityApiEndpoints<TopFiveUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         
         builder.Services.AddDbContext<ApplicationDbContext>();
         builder.Services.AddSingleton<IEmailSender<TopFiveUser>, NoOpEmailSender>();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("VueDev", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")  // Vue dev server (Vite default port)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+        }
         
         WebApplication app = builder.Build();
 
         app.UseHttpsRedirection();
-        
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors("VueDev");
+        }
         app.UseAuthentication();
         app.UseAuthorization();
         
         app.MapIdentityApi<TopFiveUser>();
         app.MapDefaultControllerRoute();
-        app.MapRazorPages();
-        
+
+        app.MapFallbackToFile("index.html");
         app.Run();
     }
 }
