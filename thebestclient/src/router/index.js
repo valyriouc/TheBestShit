@@ -4,6 +4,8 @@ import Login from '@/views/Login.vue'
 import Top5 from '@/views/Top5.vue'
 
 import { createRouter, createWebHistory } from 'vue-router'
+import Profile from '@/views/Profile.vue'
+import Categories from '@/views/Categories.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,8 +16,13 @@ const router = createRouter({
       "component": Home
     },
     {
-      "path": "/top5",
-      "name": "top5",
+      "path": "/categories",
+      "name": "categories",
+      "component": Categories
+    },
+    {
+      "path": "/categories/:category",
+      "name": "category",
       "component": Top5
     },
     {
@@ -27,6 +34,11 @@ const router = createRouter({
       "path": "/login",
       "name": "login",
       "component": Login
+    },
+    {
+      "path": "/profile",
+      "name": "profile",
+      "component": Profile
     }
   ],
 })

@@ -58,6 +58,10 @@ public sealed class Category
     
     public string Name { get; set; } = null!;
     
+    public string Description { get; set; } = null!;
+    
+    public List<Resource> Resources { get; set; } = new();
+    
     public TopFiveUser Owner { get; set; } = null!;
 }
 

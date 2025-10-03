@@ -38,12 +38,12 @@ export const useUserStore = defineStore('user', {
       }
     },
     async logoutAsync() {
-      localStorage.removeItem('auth')
-      localStorage.removeItem('user')
-      this.username = null
-      this.accessToken = null
-      this.refreshToken = null
-      this.loggedIn = false
+        localStorage.removeItem('auth')
+        localStorage.removeItem('user')
+        this.username = null
+        this.accessToken = null
+        this.refreshToken = null
+        this.loggedIn = false
     },
     verifyAuth() {
       const auth = localStorage.getItem('auth')

@@ -2,13 +2,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace iteration1.Controllers;
- 
+
 public sealed class CategoryController(ApplicationDbContext dbContext) : AppBaseController(dbContext)
 {
+    [AllowAnonymous]
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAsync()
     {
@@ -16,7 +18,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         return Ok(categories);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> AddAsync([FromBody] CategoryRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -32,7 +34,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         }
         
         var user = await GetCurrentUserAsync();
-        Category newCategory = new() { Name = request.Name, Owner = user };
+        Category newCategory = new() { Name = request.Name, Description = request.Description, Owner = user };
         
         _dbContext.Categories.Add(newCategory);
         await _dbContext.SaveChangesAsync();
@@ -40,7 +42,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         return Ok(new AppResponseInfo<Category>("Category created successfully.", newCategory));
     }
 
-    [HttpPost]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAsync([FromBody] CategoryRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -71,9 +73,11 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
 }
 
 [method: JsonConstructor]
-public readonly struct CategoryRequest(uint? id, string name)
+public readonly struct CategoryRequest(uint? id, string name, string description)
 {
     [Key] public uint? Id { get; } = id;
     
     public string Name { get; } = name;
+    
+    public string Description { get; } = description;
 }

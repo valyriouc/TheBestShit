@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace iteration1.Controllers;
 
 public sealed class ResourceController(ApplicationDbContext dbContext) : AppBaseController(dbContext)
 {
+    
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] string? category)
@@ -20,6 +22,7 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
         return Ok(resources);
     }
 
+    [AllowAnonymous]
     [HttpGet("five")]
     public async Task<IActionResult> GetTopFiveAsync(
         [FromQuery] string category)

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using iteration1.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,7 +10,7 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
         builder.Services.AddIdentityApiEndpoints<TopFiveUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>();

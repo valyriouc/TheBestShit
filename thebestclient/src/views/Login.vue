@@ -25,7 +25,7 @@ async function login() {
     });
     console.log('Login successful:', userStore.getUser, userStore.getAuth);
     
-        router.push('/'); // Redirect to home page after login
+        router.push('/profile'); // Redirect to home page after login
     } catch (error) {
         alert('Login failed: ' + error.message);    
     }
