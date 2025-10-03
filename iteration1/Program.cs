@@ -9,7 +9,8 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+        builder.Services.AddRazorPages();
+;        builder.Services.AddControllers();
 
         builder.Services.AddIdentityApiEndpoints<TopFiveUser>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -26,6 +27,7 @@ public class Program
         
         app.MapIdentityApi<TopFiveUser>();
         app.MapDefaultControllerRoute();
+        app.MapRazorPages();
         
         app.Run();
     }
