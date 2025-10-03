@@ -5,9 +5,9 @@ import { useUserStore } from '../stores/user';
 </script>
 
 <template>
-  <h1>Home Page</h1>
-  <div v-if="userStore.isLoggedIn">
-    <p>Welcome back, {{userStore.username }}!</p>
+  <h1>The Top 5 Resources. Nothing More, Nothing Less.</h1>
+  <div>
+    We're building a movement that transforms how the world consumes information. By curating only the top 5 resources in every field, we're ending the tyranny of endless choice and empowering people to learn with confidence, not FOMO.
   </div>
 </template>
 
