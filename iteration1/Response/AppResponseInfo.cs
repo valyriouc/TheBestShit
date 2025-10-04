@@ -1,10 +1,17 @@
-using System.Text.Json;
+using System.Net;
+using System.Text.Json.Serialization;
 
 namespace iteration1.Response;
 
-public readonly struct AppResponseInfo<T>(string message, T content)
+public readonly struct AppResponseInfo<T>(
+    HttpStatusCode statusCode,
+    string message, 
+    T? content = default)
 {
+    public HttpStatusCode StatusCode { get; } = statusCode;
+    
     public string Message { get; } = message;
 
-    public string Content { get; } = JsonSerializer.Serialize(content);
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public T? Content { get; } = content;
 }

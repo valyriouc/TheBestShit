@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
-  state: () => ({ username: '', accessToken: null, refreshToken: null, loggedIn: false}),
+  state: () => ({ username: '', tokenType: null, accessToken: null, refreshToken: null, loggedIn: false}),
   getters: {
     isLoggedIn: (state) => state.loggedIn,
     getUser: (state) => state.username,
-    getAuth: (state) => ({ accessToken: state.accessToken, refreshToken: state.refreshToken }),
+    getAuth: (state) => ({ tokenType: state.tokenType, accessToken: state.accessToken, refreshToken: state.refreshToken }),
   },
   actions: {
     async loginAsync(credentials) {
@@ -22,6 +22,7 @@ export const useUserStore = defineStore('user', {
 
         this.accessToken = data.accessToken;
         this.refreshToken = data.refreshToken;
+        this.tokenType = data.tokenType;
         this.loggedIn = true;
 
         const userResponse = await fetch('http://localhost:5190/api/user/me', {
@@ -31,7 +32,7 @@ export const useUserStore = defineStore('user', {
 
         const userData = await userResponse.json()
         localStorage.setItem('user', JSON.stringify(userData))
-        this.username = userData.email;
+        this.username = userData.userName;
 
       } catch (error) {
         throw new Error(error)
@@ -43,14 +44,17 @@ export const useUserStore = defineStore('user', {
         this.username = null
         this.accessToken = null
         this.refreshToken = null
+        this.tokenType = null
         this.loggedIn = false
     },
     verifyAuth() {
       const auth = localStorage.getItem('auth')
       const user = localStorage.getItem('user')
       if (auth && user) {
-        this.auth = JSON.parse(auth)
-        this.username = JSON.parse(user).email;
+        this.tokenType = JSON.parse(auth).tokenType;
+        this.accessToken = JSON.parse(auth).accessToken;
+        this.refreshToken = JSON.parse(auth).refreshToken;
+        this.username = JSON.parse(user).userName;
         this.loggedIn = true
       }
 

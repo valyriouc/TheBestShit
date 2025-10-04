@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
@@ -15,6 +16,17 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     public async Task<IActionResult> GetAllAsync()
     {
         List<Category> categories = await _dbContext.Categories.ToListAsync();
+        return Ok(categories);
+    }
+
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyCategoriesAsync()
+    {
+        var user = await GetCurrentUserAsync();
+        var categories = await _dbContext.Categories
+            .Where(x => x.Owner == user)
+            .ToListAsync();
+        
         return Ok(categories);
     }
 
@@ -39,7 +51,9 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         _dbContext.Categories.Add(newCategory);
         await _dbContext.SaveChangesAsync();
         
-        return Ok(new AppResponseInfo<Category>("Category created successfully.", newCategory));
+        return Ok(new AppResponseInfo<Category>(
+            HttpStatusCode.OK,
+            "Category created successfully.", newCategory));
     }
 
     [HttpPost("update")]
@@ -68,7 +82,9 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
 
         category.Name = request.Name;
         await _dbContext.SaveChangesAsync();
-        return Ok(new AppResponseInfo<Category>("Category updated successfully.", category));
+        return Ok(new AppResponseInfo<Category>(
+            HttpStatusCode.OK,
+            "Category updated successfully.", category));
     }
 }
 

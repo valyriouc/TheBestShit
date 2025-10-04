@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
@@ -11,7 +12,7 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
     [HttpGet]
     public async Task<IActionResult> GetVoteAsync([FromQuery] uint resourceId)
     {
-        TopFiveUser user = await GetCurrentUserAsync();  
+        TopFiveUser user = await GetCurrentUserAsync(); 
 
         Vote? vote = await _dbContext.Votes.FirstOrDefaultAsync(
             x => x.Resource.Id == resourceId && x.Owner.Id == user.Id);
@@ -52,7 +53,7 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
             Direction = request.Direction
         };
 
-        if (vote.Direction == true)
+        if (vote.Direction)
         {
             resource.UpVotes += 1;
         }
@@ -64,7 +65,9 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
         _dbContext.Votes.Add(vote);
         await _dbContext.SaveChangesAsync();
         
-        return Ok(new AppResponseInfo<VoteRequest>("Vote recorded successfully.", request));
+        return Ok(new AppResponseInfo<VoteRequest>(
+            HttpStatusCode.OK,
+            "Vote recorded successfully.", request));
     }
 
     [HttpPut]
@@ -96,7 +99,9 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
         existingVote.Direction = request.Direction;
         
         await _dbContext.SaveChangesAsync();
-        return Ok(new AppResponseInfo<VoteRequest>("Vote updated successfully.", request));
+        return Ok(new AppResponseInfo<VoteRequest>(
+            HttpStatusCode.OK,
+            "Vote updated successfully.", request));
     }
 
     [HttpDelete]
@@ -125,7 +130,9 @@ public sealed class VoteController(ApplicationDbContext dbContext) : AppBaseCont
         _dbContext.Votes.Remove(existingVote);
         await _dbContext.SaveChangesAsync();
         
-        return Ok(new AppResponseInfo<string>("Vote deleted successfully.", $"Vote for resource id {resourceId} deleted."));
+        return Ok(new AppResponseInfo<string>(
+            HttpStatusCode.OK,
+            "Vote deleted successfully.", $"Vote for resource id {resourceId} deleted."));
     }
 }
 

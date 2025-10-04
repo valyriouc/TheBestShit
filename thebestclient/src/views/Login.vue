@@ -23,7 +23,7 @@ async function login() {
         email: email.value,
         password: password.value
     });
-    console.log('Login successful:', userStore.getUser, userStore.getAuth);
+        console.log('Login successful:', userStore.getUser, userStore.getAuth);
     
         router.push('/profile'); // Redirect to home page after login
     } catch (error) {
@@ -35,9 +35,10 @@ async function login() {
 <template>
     <h1>Login</h1>
     <div>
-        <input v-model="email" type="text" placeholder="Email" /> 
-        <input v-model="password" type="password" placeholder="Password" />
-        <button @click="login">Login</button>
+        <input v-model="email" type="text" placeholder="Email" /> <br />
+        <input v-model="password" type="password" placeholder="Password" /> <br />
+        <p>Don't have an account? <router-link to="/register">Register</router-link></p>
+        <button @click="login" class="btn btn-primary">Login</button>
     </div>
 </template>
 

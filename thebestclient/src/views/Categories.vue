@@ -1,13 +1,13 @@
 <script setup>
-import { useUserStore } from '@/stores/user';
 import { onBeforeMount, onMounted, watch, ref } from 'vue';
-const userStore = useUserStore();
+
 let items = ref([]);
 onBeforeMount(async () => {
   const response = await fetch("http://localhost:5190/api/category/all");
   if (response.ok) {
-    items.value = await response.json();
-    console.log("Fetched items:", items);
+    const json = await response.json();
+    console.log("Fetched JSON:", json);
+    items.value = json;
   } else {
     console.error("Failed to fetch items:", response.statusText);
   }

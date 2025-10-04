@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
@@ -10,13 +11,12 @@ namespace iteration1.Controllers;
 
 public sealed class ResourceController(ApplicationDbContext dbContext) : AppBaseController(dbContext)
 {
-    
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAsync(
-        [FromQuery] string? category)
+        [FromQuery] string? section)
     {
         List<Resource> resources = await _dbContext.Resources
-            .Where(x => x.Category.Name == category)
+            .Where(x => x.Section.Name == section)
             .ToListAsync();
 
         return Ok(resources);
@@ -25,10 +25,10 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
     [AllowAnonymous]
     [HttpGet("five")]
     public async Task<IActionResult> GetTopFiveAsync(
-        [FromQuery] string category)
+        [FromQuery] string section)
     {
         List<Resource> resources = await _dbContext.Resources
-            .Where(x => x.Category.Name == category)
+            .Where(x => x.Section.Name == section)
             .OrderBy(x => x.Score)
             .Take(5)
             .ToListAsync();
@@ -41,27 +41,27 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
     {
         TopFiveUser user = await GetCurrentUserAsync();
         
-        Category? category = await _dbContext.Categories
-            .FirstOrDefaultAsync(c => c.Name == request.CategoryName);
+        Section? section = await _dbContext.Sections
+            .FirstOrDefaultAsync(c => c.Name == request.SectionName);
 
-        if (category is null)
+        if (section is null)
         {
-            return NotFound($"Category '{request.CategoryName}' not found.");
+            return NotFound($"Category '{request.SectionName}' not found.");
         }
 
         Resource? existing = await _dbContext.Resources.FirstOrDefaultAsync(
-            x => x.Name == request.Name && x.Category == category);
+            x => x.Name == request.Name && x.Section == section);
 
         if (existing is not null)
         {
-            return NotFound($"Resource with name '{existing.Name}' in category '{request.CategoryName}' already exists.");
+            return NotFound($"Resource with name '{existing.Name}' in category '{request.SectionName}' already exists.");
         }
         
         Resource resource = new Resource
         {
             Name = request.Name,
             Url = request.Url,
-            Category = category,
+            Section = section,
             Owner = user,
             UpVotes = 0,
             DownVotes = 0
@@ -70,7 +70,9 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
         _dbContext.Resources.Add(resource);
         await _dbContext.SaveChangesAsync();
         
-        return Ok(new AppResponseInfo<ResourceRequest>("Resource created successfully.", request));
+        return Ok(new AppResponseInfo<ResourceRequest>(
+            HttpStatusCode.OK,
+            "Resource created successfully.", request));
     }
 
     [HttpPut]
@@ -98,7 +100,9 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
         _dbContext.Resources.Remove(resource);
         await _dbContext.SaveChangesAsync();
         
-        return Ok(new AppResponseInfo<IdResponse>("Resource deleted successfully.", new IdResponse(id)));
+        return Ok(new AppResponseInfo<IdResponse>(
+            HttpStatusCode.OK,
+            "Resource deleted successfully.", new IdResponse(id)));
     }
     
     private readonly struct IdResponse(uint id)
@@ -112,7 +116,7 @@ public readonly struct ResourceRequest(
     uint? id,
     string name,
     Uri url,
-    string categoryName)
+    string sectionName)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public uint? Id { get; } = id;
@@ -124,5 +128,5 @@ public readonly struct ResourceRequest(
     [Url]
     public Uri Url { get; } = url;
 
-    public string CategoryName { get; } = categoryName;
+    public string SectionName { get; } = sectionName;
 }
