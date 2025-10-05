@@ -3,7 +3,7 @@ import { onBeforeMount, onMounted, watch, ref } from 'vue';
 
 let items = ref([]);
 onBeforeMount(async () => {
-  const response = await fetch("http://localhost:5190/api/category/all");
+  const response = await fetch("/api/category/all");
   if (response.ok) {
     const json = await response.json();
     console.log("Fetched JSON:", json);

@@ -13,6 +13,9 @@ public class UserController(ApplicationDbContext dbContext) : AppBaseController(
         TopFiveUser user = await HttpContext.GetCurrentUser(_dbContext);
         return Ok(new UserResponse(user));
     }
+
+    [HttpGet("authCheck")]
+    public async Task<IActionResult> AuthCheckAsync() => Ok(new Dictionary<string,  string>());
 }
 
 public readonly struct UserResponse(TopFiveUser user)

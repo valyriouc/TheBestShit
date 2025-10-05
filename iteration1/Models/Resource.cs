@@ -59,10 +59,14 @@ public sealed class Category
     
     public string Description { get; set; } = null!;
     
+    
     public List<Section> Sections { get; set; } = new();
     
     public TopFiveUser Owner { get; set; } = null!;
 }
+
+// ask: what if another user wants to add a section or resource to a category or section of someone else 
+
 
 public sealed class Section
 {
@@ -73,7 +77,9 @@ public sealed class Section
     public string Description { get; set; } = null!;
     
     public List<Resource> Resources { get; set; } = new();
-    
+
+    public Category Category { get; set; } = null!;
+
     public TopFiveUser Owner { get; set; } = null!;
 }
 
@@ -82,7 +88,6 @@ public sealed class TopFiveUser : IdentityUser
     // todo: how to calculate the trust score?
     // based on experience, contributions, post upvotes received, 
     public ulong Trust { get; set; } = 0;
-    
 }
 
 public sealed class TopFiveEmailSender : IEmailSender<TopFiveUser>

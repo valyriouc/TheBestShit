@@ -24,7 +24,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     {
         var user = await GetCurrentUserAsync();
         var categories = await _dbContext.Categories
-            .Where(x => x.Owner == user)
+            .Where(x => x.Owner.Id == user.Id)
             .ToListAsync();
         
         return Ok(categories);
@@ -46,14 +46,14 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         }
         
         var user = await GetCurrentUserAsync();
-        Category newCategory = new() { Name = request.Name, Description = request.Description, Owner = user };
+        Category newCategory = new() { Name = request.Name, Description = request.Description, Owner = user};
         
         _dbContext.Categories.Add(newCategory);
         await _dbContext.SaveChangesAsync();
         
         return Ok(new AppResponseInfo<Category>(
             HttpStatusCode.OK,
-            "Category created successfully.", newCategory));
+            $"{nameof(Category)} created successfully.", newCategory));
     }
 
     [HttpPost("update")]

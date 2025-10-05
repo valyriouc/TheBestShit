@@ -1,3 +1,4 @@
+import { ApiHelper } from '@/api/apiHelper'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
@@ -57,8 +58,14 @@ export const useUserStore = defineStore('user', {
         this.username = JSON.parse(user).userName;
         this.loggedIn = true
       }
-
+      
       return this.loggedIn;
+    },
+    async checkAuthAsync() {
+      const response = await ApiHelper.authorizedFetch('/api/user/authCheck', {
+        method: 'GET',
+        headers: { 'Authorization': `${this.tokenType} ${this.accessToken}` }
+      });
     }
   }
 })
