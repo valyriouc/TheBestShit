@@ -19,13 +19,15 @@ public sealed class Resource
 
     public ulong DownVotes { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+    
     public ulong TotalVotes => UpVotes + DownVotes;
     
     public double Score
     {
         get
         {
-            if (TotalVotes < 10)
+            if (TotalVotes < 20)
             {
                 return 0.0;
             }        
@@ -58,7 +60,8 @@ public sealed class Category
     public string Name { get; set; } = null!;
     
     public string Description { get; set; } = null!;
-    
+
+    public bool PublicEdit { get; set; } = false;
     
     public List<Section> Sections { get; set; } = new();
     
@@ -77,6 +80,8 @@ public sealed class Section
     public string Description { get; set; } = null!;
     
     public List<Resource> Resources { get; set; } = new();
+    
+    public bool PublicEdit { get; set; } = false;
 
     public Category Category { get; set; } = null!;
 

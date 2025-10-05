@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace iteration1.Controllers;
 
+// todo: make transfer objects to not disclose sensitive information
+
 public sealed class CategoryController(ApplicationDbContext dbContext) : AppBaseController(dbContext)
 {
     [AllowAnonymous]
@@ -16,7 +18,7 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     public async Task<IActionResult> GetAllAsync()
     {
         List<Category> categories = await _dbContext.Categories.ToListAsync();
-        return Ok(categories);
+        return Ok(categories);  
     }
 
     [HttpGet("my")]
@@ -30,8 +32,35 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         return Ok(categories);
     }
 
+    [HttpPost("{categoryId}/add/{sectionId}")]
+    public async Task<IActionResult> AddAsync([FromRoute] uint categoryId, [FromBody] uint sectionId)
+    {
+        TopFiveUser user = await GetCurrentUserAsync();
+        Category? category = await _dbContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
+        
+        if (category == null)
+        {
+            return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Category not found"));
+        }
+        
+        Section? section = await _dbContext.Sections.FirstOrDefaultAsync(x => x.Id == sectionId);
+        if (section == null)
+        {
+            return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Section not found"));
+        }
+
+        if (!category.PublicEdit && category.Owner != user)
+            return Forbid();
+
+        category.Sections.Add(section);
+        await _dbContext.SaveChangesAsync();
+        
+        return Ok(new AppResponseInfo<string>(HttpStatusCode.OK, "Category added"));
+    }
+    
+
     [HttpPost("create")]
-    public async Task<IActionResult> AddAsync([FromBody] CategoryRequest request)
+    public async Task<IActionResult> CreateAsync([FromBody] CategoryRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {

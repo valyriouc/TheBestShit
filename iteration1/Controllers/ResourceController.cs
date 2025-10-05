@@ -22,6 +22,16 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
         return Ok(resources);
     }
 
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyAsync()
+    {
+        var user = await GetCurrentUserAsync();
+        var resources = await _dbContext.Resources
+            .Where(x => x.Owner == user)
+            .ToListAsync();
+        return Ok(resources);
+    }
+
     [AllowAnonymous]
     [HttpGet("five")]
     public async Task<IActionResult> GetTopFiveAsync(

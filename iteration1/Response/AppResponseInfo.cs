@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace iteration1.Response;
 
-public readonly struct AppResponseInfo<T>(
+public sealed class AppResponseInfo<T>(
     HttpStatusCode statusCode,
     string message, 
     T? content = default)
