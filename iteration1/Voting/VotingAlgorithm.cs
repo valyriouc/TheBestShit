@@ -9,7 +9,7 @@ public static class HotRankingAlgorithm
     private static double EpochSeconds(DateTime date)
     {
         var td = date - Epoch;
-        return td.Days * 86400 + td.Seconds + ((float)td.Milliseconds / 1000000);
+        return td.TotalSeconds;
     }
     
     public static double IsHot(ulong ups, ulong downs, DateTime date)

@@ -12,7 +12,10 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAsync()
     {
-        var sections = await dbContext.Sections
+        List<SectionResponse> sections = await dbContext.Sections
+            .Include(s => s.Owner)
+            .Include(s => s.Category)
+            .Include(s => s.Resources)
             .Select(x => new SectionResponse(x))
             .ToListAsync();
         return Ok(sections);
@@ -23,6 +26,9 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
     {
         TopFiveUser user = await GetCurrentUserAsync();
         var sections = await _dbContext.Sections
+            .Include(s => s.Owner)
+            .Include(s => s.Category)
+            .Include(s => s.Resources)
             .Where(x => x.Owner == user)
             .Select(x => new SectionResponse(x))
             .ToListAsync();
@@ -34,7 +40,10 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
     {
         TopFiveUser user = await GetCurrentUserAsync();
 
-        Section? section = await _dbContext.Sections.FirstOrDefaultAsync(x => x.Id == sectionId);
+        Section? section = await _dbContext.Sections
+            .Include(s => s.Owner)
+            .Include(s => s.Resources)
+            .FirstOrDefaultAsync(x => x.Id == sectionId);
 
         if (section == null)
         {
@@ -42,8 +51,10 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
                 HttpStatusCode.NotFound,
                 "Section not found"));
         }
-        
-        Resource? resource = await _dbContext.Resources.FirstOrDefaultAsync(x => x.Id == resourceId);
+
+        Resource? resource = await _dbContext.Resources
+            .Include(r => r.Section)
+            .FirstOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null)
         {
             return NotFound(new AppResponseInfo<string>(
@@ -51,11 +62,19 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
                 "Resource not found"));
         }
 
-        if (!section.PublicEdit && section.Owner != user)
+        if (!section.PublicEdit && section.Owner.Id != user.Id)
         {
             return Forbid();
         }
-        
+
+        // Check if resource already belongs to a section
+        if (resource.Section != null)
+        {
+            return Conflict(new AppResponseInfo<string>(
+                HttpStatusCode.Conflict,
+                $"Resource already belongs to section '{resource.Section.Name}'"));
+        }
+
         section.Resources.Add(resource);
         await _dbContext.SaveChangesAsync();
         return Ok(new AppResponseInfo<string>(
@@ -107,6 +126,7 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
             Name = section.Name,
             Description = section.Description,
             Owner = user,
+            Category = category,
             PublicEdit = section.PublicEdit,
         };
 

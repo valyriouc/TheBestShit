@@ -17,7 +17,17 @@ export const useUserStore = defineStore('user', {
           body: JSON.stringify(credentials)
         })
 
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Login failed with status ${response.status}`);
+        }
+
         const data = await response.json()
+
+        // Validate that we received the expected data
+        if (!data.accessToken || !data.tokenType) {
+          throw new Error('Invalid login response: missing token data');
+        }
 
         localStorage.setItem('auth', JSON.stringify(data))
 
@@ -31,12 +41,20 @@ export const useUserStore = defineStore('user', {
           headers: { 'Authorization': `${data.tokenType} ${data.accessToken}` }
         })
 
+        if (!userResponse.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
         const userData = await userResponse.json()
         localStorage.setItem('user', JSON.stringify(userData))
         this.username = userData.userName;
 
       } catch (error) {
-        throw new Error(error)
+        // Clean up on error
+        localStorage.removeItem('auth');
+        localStorage.removeItem('user');
+        this.loggedIn = false;
+        throw error;
       }
     },
     async logoutAsync() {

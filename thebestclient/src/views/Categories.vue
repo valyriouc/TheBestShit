@@ -1,15 +1,17 @@
 <script setup>
-import { onBeforeMount, onMounted, watch, ref } from 'vue';
+import { ApiHelper } from '@/api/apiHelper';
+import { onBeforeMount, ref } from 'vue';
 
 let items = ref([]);
 onBeforeMount(async () => {
-  const response = await fetch("/api/category/all");
-  if (response.ok) {
-    const json = await response.json();
+  try {
+    const json = await ApiHelper.authorizedFetch("/api/category/all", {
+      method: 'GET'
+    });
     console.log("Fetched JSON:", json);
     items.value = json;
-  } else {
-    console.error("Failed to fetch items:", response.statusText);
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
   }
 })
 </script>   

@@ -12,45 +12,30 @@ async function fetchCategories() {
     try {
         const fetchedCategories = await ApiHelper.authorizedFetch(
             '/api/category/my',
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `${userStore.getAuth?.tokenType} ${userStore.getAuth?.accessToken}`
-                }
-            }
+            { method: 'GET' }
         );
         console.log('Fetched categories response:', fetchedCategories);
 
-            categories.value = fetchedCategories;
+        categories.value = fetchedCategories;
         console.log('Fetched categories:', categories.value);
 
-        // const fetchedSections = await ApiHelper.authorizedFetch(
-        //     '/api/section/my',
-        //     {
-        //         method: 'GET',
-        //         headers: {
-        //             'Authorization': `${userStore.getAuth?.tokenType} ${userStore.getAuth?.accessToken}`
-        //         }
-        //     }
-        // )
+        const fetchedSections = await ApiHelper.authorizedFetch(
+            '/api/section/my',
+            { method: 'GET' }
+        )
 
-        // sections.value = fetchedSections;
-        // console.log('Fetched sections:', sections.value);
+        sections.value = fetchedSections;
+        console.log('Fetched sections:', sections.value);
 
-        // const fetchedResources = await ApiHelper.authorizedFetch(
-        //     '/api/resource/my',
-        //     {
-        //         method: 'GET',
-        //         headers: {
-        //             'Authorization': `${userStore.getAuth?.tokenType} ${userStore.getAuth?.accessToken}`
-        //         }
-        //     }
-        // )
+        const fetchedResources = await ApiHelper.authorizedFetch(
+            '/api/resource/my',
+            { method: 'GET' }
+        )
 
-        // resources.value = fetchedResources;
+        resources.value = fetchedResources;
         console.log('Fetched resources:', resources.value);
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching data:', error);
     }
 }
 
@@ -89,7 +74,7 @@ onMounted(async () => {
                 </tbody>
             </table>
         </div>
-        <div class="table-container"> 
+        <div class="table-container">
             <h2>Sections</h2>
             <table class="table">
                 <thead>
@@ -100,6 +85,35 @@ onMounted(async () => {
                         <th>Delete</th>
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="section in sections" :key="section.id">
+                        <td>{{ section.name }}</td>
+                        <td>{{ section.description }}</td>
+                        <td><button class="btn btn-secondary">Edit</button></td>
+                        <td><button class="btn btn-danger">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+         <div class="table-container">
+            <h2>Resources</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>URL</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="resource in resources" :key="resource.id">
+                        <td>{{ resource.name }}</td>
+                        <td><a :href="resource.url" target="_blank">{{ resource.url }}</a></td>
+                        <td><button class="btn btn-secondary">Edit</button></td>
+                        <td><button class="btn btn-danger">Delete</button></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>

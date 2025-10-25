@@ -17,8 +17,11 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAsync()
     {
-        List<Category> categories = await _dbContext.Categories.ToListAsync();
-        return Ok(categories);  
+        List<Category> categories = await _dbContext.Categories
+            .Include(c => c.Owner)
+            .Include(c => c.Sections)
+            .ToListAsync();
+        return Ok(categories);
     }
 
     [HttpGet("my")]
@@ -26,9 +29,11 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     {
         var user = await GetCurrentUserAsync();
         var categories = await _dbContext.Categories
+            .Include(c => c.Owner)
+            .Include(c => c.Sections)
             .Where(x => x.Owner.Id == user.Id)
             .ToListAsync();
-        
+
         return Ok(categories);
     }
 
@@ -36,26 +41,39 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
     public async Task<IActionResult> AddAsync([FromRoute] uint categoryId, [FromBody] uint sectionId)
     {
         TopFiveUser user = await GetCurrentUserAsync();
-        Category? category = await _dbContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
-        
+        Category? category = await _dbContext.Categories
+            .Include(c => c.Owner)
+            .Include(c => c.Sections)
+            .FirstOrDefaultAsync(x => x.Id == categoryId);
+
         if (category == null)
         {
             return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Category not found"));
         }
-        
-        Section? section = await _dbContext.Sections.FirstOrDefaultAsync(x => x.Id == sectionId);
+
+        Section? section = await _dbContext.Sections
+            .Include(s => s.Category)
+            .FirstOrDefaultAsync(x => x.Id == sectionId);
         if (section == null)
         {
             return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Section not found"));
         }
 
-        if (!category.PublicEdit && category.Owner != user)
+        if (!category.PublicEdit && category.Owner.Id != user.Id)
             return Forbid();
+
+        // Check if section already belongs to a category
+        if (section.Category != null)
+        {
+            return Conflict(new AppResponseInfo<string>(
+                HttpStatusCode.Conflict,
+                $"Section already belongs to category '{section.Category.Name}'"));
+        }
 
         category.Sections.Add(section);
         await _dbContext.SaveChangesAsync();
-        
-        return Ok(new AppResponseInfo<string>(HttpStatusCode.OK, "Category added"));
+
+        return Ok(new AppResponseInfo<string>(HttpStatusCode.OK, "Section added to category"));
     }
     
 
@@ -97,19 +115,22 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         {
             return BadRequest("Category id is required for update.");
         }
-        
-        Category? category = await _dbContext.Categories.FindAsync(request.Id.Value);
+
+        Category? category = await _dbContext.Categories
+            .Include(c => c.Owner)
+            .FirstOrDefaultAsync(c => c.Id == request.Id.Value);
         if (category is null)
         {
             return NotFound($"Category with id {request.Id.Value} not found.");
         }
-        
+
         if (category.Owner.Id != (await GetCurrentUserAsync()).Id)
         {
             return Forbid("You do not have permission to update this category.");
         }
 
         category.Name = request.Name;
+        category.Description = request.Description;
         await _dbContext.SaveChangesAsync();
         return Ok(new AppResponseInfo<Category>(
             HttpStatusCode.OK,
