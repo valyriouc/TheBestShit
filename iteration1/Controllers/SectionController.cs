@@ -35,53 +35,6 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
         return Ok(sections);
     }
 
-    [HttpPost("{sectionId}/add/{resourceId}")]
-    public async Task<IActionResult> AddAsync(uint sectionId, uint resourceId)
-    {
-        TopFiveUser user = await GetCurrentUserAsync();
-
-        Section? section = await _dbContext.Sections
-            .Include(s => s.Owner)
-            .Include(s => s.Resources)
-            .FirstOrDefaultAsync(x => x.Id == sectionId);
-
-        if (section == null)
-        {
-            return NotFound(new AppResponseInfo<string>(
-                HttpStatusCode.NotFound,
-                "Section not found"));
-        }
-
-        Resource? resource = await _dbContext.Resources
-            .Include(r => r.Section)
-            .FirstOrDefaultAsync(x => x.Id == resourceId);
-        if (resource == null)
-        {
-            return NotFound(new AppResponseInfo<string>(
-                HttpStatusCode.NotFound,
-                "Resource not found"));
-        }
-
-        if (!section.PublicEdit && section.Owner.Id != user.Id)
-        {
-            return Forbid();
-        }
-
-        // Check if resource already belongs to a section
-        if (resource.Section != null)
-        {
-            return Conflict(new AppResponseInfo<string>(
-                HttpStatusCode.Conflict,
-                $"Resource already belongs to section '{resource.Section.Name}'"));
-        }
-
-        section.Resources.Add(resource);
-        await _dbContext.SaveChangesAsync();
-        return Ok(new AppResponseInfo<string>(
-            HttpStatusCode.OK,
-            "Resource added successfully"));
-    }
-    
     [HttpPost("create/{categoryId}")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] uint categoryId,

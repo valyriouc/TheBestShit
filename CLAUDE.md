@@ -157,3 +157,18 @@ const response = await ApiHelper.authorizedFetch('/endpoint', {
     body: JSON.stringify(data)
 });
 ```
+
+## Testing framework 
+For mocking the actual database we use the `DbContextOptions<ApplicationDbContext>` with an actual SQLite database
+Sample:
+```csharp
+  SqliteConnection connection = new SqliteConnection("Filename=:memory:"); 
+  connection.Open();
+        
+        // Setup in-memory database with unique name per test instance
+    DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+      .UseSqlite(connection)
+      .ConfigureWarnings(x => x.Default(Microsoft.EntityFrameworkCore.WarningBehavior.Ignore))
+      .Options;
+        
+```

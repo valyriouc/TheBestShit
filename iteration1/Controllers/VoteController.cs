@@ -1,9 +1,11 @@
+using System.Linq.Expressions;
 using System.Net;
 using System.Text.Json.Serialization;
 using iteration1.Models;
 using iteration1.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace iteration1.Controllers;
 
@@ -30,9 +32,8 @@ public sealed class VoteController(ApplicationDbContext dbContext)
     public async Task<IActionResult> CreateVoteAsync([FromBody] VoteRequest request)
     {
         TopFiveUser user = await GetCurrentUserAsync();
-
-        // Use a transaction to prevent race conditions
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        
+        using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
 
         try
         {

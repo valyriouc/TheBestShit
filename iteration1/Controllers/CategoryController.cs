@@ -37,45 +37,6 @@ public sealed class CategoryController(ApplicationDbContext dbContext) : AppBase
         return Ok(categories);
     }
 
-    [HttpPost("{categoryId}/add/{sectionId}")]
-    public async Task<IActionResult> AddAsync([FromRoute] uint categoryId, [FromBody] uint sectionId)
-    {
-        TopFiveUser user = await GetCurrentUserAsync();
-        Category? category = await _dbContext.Categories
-            .Include(c => c.Owner)
-            .Include(c => c.Sections)
-            .FirstOrDefaultAsync(x => x.Id == categoryId);
-
-        if (category == null)
-        {
-            return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Category not found"));
-        }
-
-        Section? section = await _dbContext.Sections
-            .Include(s => s.Category)
-            .FirstOrDefaultAsync(x => x.Id == sectionId);
-        if (section == null)
-        {
-            return NotFound(new AppResponseInfo<string>(HttpStatusCode.NotFound, "Section not found"));
-        }
-
-        if (!category.PublicEdit && category.Owner.Id != user.Id)
-            return Forbid();
-
-        // Check if section already belongs to a category
-        if (section.Category != null)
-        {
-            return Conflict(new AppResponseInfo<string>(
-                HttpStatusCode.Conflict,
-                $"Section already belongs to category '{section.Category.Name}'"));
-        }
-
-        category.Sections.Add(section);
-        await _dbContext.SaveChangesAsync();
-
-        return Ok(new AppResponseInfo<string>(HttpStatusCode.OK, "Section added to category"));
-    }
-    
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateAsync([FromBody] CategoryRequest request)

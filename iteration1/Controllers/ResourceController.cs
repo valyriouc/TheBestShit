@@ -43,16 +43,18 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
     public async Task<IActionResult> GetTopFiveAsync(
         [FromQuery] string section)
     {
-        List<ResourceResponse> resources = await _dbContext.Resources
+        // Fetch resources and materialize them first
+        List<Resource> allResources = await _dbContext.Resources
             .Include(x => x.Section)
             .Include(x => x.Owner)
             .Where(x => x.Section.Name == section)
-            .OrderByDescending(x => x.Score)
-            .Take(5)
-            .Select(x => new ResourceResponse(x))
             .ToListAsync();
 
-        return Ok(resources);
+        // Order by Score in memory (since Score is a computed property)
+        return Ok(allResources
+            .OrderByDescending(x => x.Score)
+            .Take(5)
+            .Select(x => new ResourceResponse(x)));
     }
 
     [HttpPost("create/{sectionId}")]
@@ -134,11 +136,11 @@ public sealed class ResourceController(ApplicationDbContext dbContext) : AppBase
             HttpStatusCode.OK,
             "Resource deleted successfully.", new IdResponse(id)));
     }
-    
-    private readonly struct IdResponse(uint id)
-    {
-        public uint Id { get; } = id;
-    }
+}
+
+public readonly struct IdResponse(uint id)
+{
+    public uint Id { get; } = id;
 }
 
 [method: JsonConstructor]

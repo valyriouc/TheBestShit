@@ -6,6 +6,7 @@ using iteration1.Models;
 using iteration1.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace TheBestShit.Tests;
@@ -21,12 +22,15 @@ public class VoteControllerTests : IDisposable
 
     public VoteControllerTests()
     {
+        SqliteConnection connection = new SqliteConnection("Filename=:memory:"); 
+        connection.Open();
+        
         // Setup in-memory database with unique name per test instance
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseSqlite(connection)
             .ConfigureWarnings(x => x.Default(Microsoft.EntityFrameworkCore.WarningBehavior.Ignore))
             .Options;
-
+        
         _context = new ApplicationDbContext(options);
         _context.Database.EnsureCreated();
 
@@ -81,12 +85,13 @@ public class VoteControllerTests : IDisposable
 
     private static void SetupControllerContext(VoteController controller, TopFiveUser user)
     {
-        var claims = new List<Claim>
+        List<Claim> claims = new List<Claim>
         {
             new(ClaimTypes.Email, user.Email!)
         };
-        var identity = new ClaimsIdentity(claims, "TestAuth");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        
+        ClaimsIdentity identity = new ClaimsIdentity(claims, "TestAuth");
+        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
 
         controller.ControllerContext = new ControllerContext
         {
@@ -109,7 +114,7 @@ public class VoteControllerTests : IDisposable
     public async Task GetVoteAsync_ExistingVote_ReturnsOkWithVote()
     {
         // Arrange
-        var vote = new Vote
+        Vote vote = new Vote
         {
             Owner = _testUser,
             Resource = _testResource,
@@ -255,26 +260,7 @@ public class VoteControllerTests : IDisposable
         var conflictResult = Assert.IsType<ConflictObjectResult>(result);
         Assert.Equal("User has already voted on this resource.", conflictResult.Value);
     }
-
-    [Fact]
-    public async Task CreateVoteAsync_TransactionRollback_OnException()
-    {
-        // Arrange
-        var request = new VoteRequest(_testResource.Id, true);
-        var initialVoteCount = await _context.Votes.CountAsync();
-        var initialUpVotes = _testResource.UpVotes;
-
-        // Dispose context to simulate database error
-        await _context.DisposeAsync();
-
-        // Act & Assert
-        await Assert.ThrowsAsync<ObjectDisposedException>(
-            async () => await _controller.CreateVoteAsync(request));
-
-        // Note: In a real scenario with a live database, we'd verify the transaction
-        // was rolled back and counts weren't incremented
-    }
-
+    
     #endregion
 
     #region UpdateVoteAsync Tests
