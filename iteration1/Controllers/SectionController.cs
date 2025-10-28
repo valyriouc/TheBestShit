@@ -25,7 +25,7 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
     public async Task<IActionResult> GetMyAsync()
     {
         TopFiveUser user = await GetCurrentUserAsync();
-        var sections = await _dbContext.Sections
+        List<SectionResponse> sections = await _dbContext.Sections
             .Include(s => s.Owner)
             .Include(s => s.Category)
             .Include(s => s.Resources)
@@ -42,7 +42,7 @@ public class SectionController(ApplicationDbContext dbContext) : AppBaseControll
     {
         if (string.IsNullOrWhiteSpace(section.Name))
         {
-            var response = new AppResponseInfo<string>(
+            AppResponseInfo<string> response = new AppResponseInfo<string>(
                 HttpStatusCode.BadRequest,
                 "Section name cannot be empty");
             return BadRequest(response);
