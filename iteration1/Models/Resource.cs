@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using iteration1.voting;
 using Microsoft.AspNetCore.Identity;
 
+// todo: verify that these are actually valid test cases claude generated 
+
 namespace iteration1.Models;
 
 public sealed class Resource
